@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Interaktywny System Quizów</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <div class="hero-section">
+                <div class="hero-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h1>Quizer</h1>
+                <p class="subtitle">Interaktywny system do nauki i sprawdzania wiedzy</p>
+            </div>
+            
+            <div class="card">
+                <h2>Ustawienia Quizu</h2>
+                
+                <div class="form-group">
+                    <label for="quiz-file">Wybierz plik z pytaniami:</label>
+                    <input type="file" id="quiz-file" accept=".txt" class="file-input">
+                    <div class="file-upload-area" onclick="document.getElementById('quiz-file').click()">
+                        <i class="fas fa-upload"></i>
+                        <span>Kliknij aby wybrać plik lub przeciągnij tutaj</span>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="blank-chars">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="setting-info">
+                            <h3>Znaki białe</h3>
+                            <p>Czy spacje i znaki białe mają znaczenie w odpowiedziach</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="capital-letters">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="setting-info">
+                            <h3>Wielkie litery</h3>
+                            <p>Czy wielkość liter ma znaczenie w odpowiedziach</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="switch">
+                            <input type="checkbox" id="strict-typos">
+                            <span class="slider"></span>
+                        </label>
+                        <div class="setting-info">
+                            <h3>Ścisłe sprawdzanie</h3>
+                            <p>Czy literówki są zawsze niedozwolone</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="max-mistakes">Maksymalna liczba błędów na pytanie:</label>
+                    <input type="number" id="max-mistakes" value="1" min="0" max="5" class="number-input">
+                </div>
+
+                <button id="start-quiz" class="btn btn-primary" disabled>
+                    <i class="fas fa-play"></i>
+                    Rozpocznij Quiz
+                </button>
+            </div>
+
+            <!-- Tutorial Section -->
+            <div class="card tutorial-card">
+                <div class="tutorial-header" onclick="toggleTutorial()">
+                    <h2>
+                        <i class="fas fa-book"></i>
+                        Jak stworzyć plik z pytaniami?
+                    </h2>
+                    <i class="fas fa-chevron-down tutorial-arrow" id="tutorial-arrow"></i>
+                </div>
+                
+                <div class="tutorial-content" id="tutorial-content">
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-cog"></i> Ustawienia (opcjonalne)</h3>
+                        <p>W pierwszej linii możesz określić sposób sprawdzania odpowiedzi:</p>
+                        <div class="code-example">
+                            <code>0 0 1</code>
+                        </div>
+                        <ul>
+                            <li><strong>1. wartość</strong>: Czy znaki białe (spacje) mają znaczenie</li>
+                            <li><strong>2. wartość</strong>: Czy wielkie litery mają znaczenie</li>
+                            <li><strong>3. wartość</strong>: Czy literówki są zawsze niedozwolone</li>
+                        </ul>
+                        <p><em>0 = nie, 1 = tak. Domyślnie: 0 0 0</em></p>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-question-circle"></i> Format pytań</h3>
+                        <p>Każde pytanie w osobnej linii w formacie:</p>
+                        <div class="code-example">
+                            <code>Pytanie? -Odpowiedź</code>
+                        </div>
+                        <p><strong>Przykład:</strong></p>
+                        <div class="code-example">
+                            <code>Kto napisał "Pan Tadeusz"? -Adam Mickiewicz</code>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-list"></i> Wiele odpowiedzi</h3>
+                        <p>Oddziel odpowiedzi przecinkami:</p>
+                        <div class="code-example">
+                            <code>W którym wieku żył Kopernik? -XV, XVI, 15, 16</code>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-tags"></i> Odpowiedzi wielowyrazowe (K/)</h3>
+                        <p>Dla odpowiedzi składających się z wielu słów w dowolnej kolejności, użyj prefiksu <code>K/</code>:</p>
+                        <div class="code-example">
+                            <code>K/ Wymień trzy największe miasta Polski -Warszawa, Kraków, Wrocław</code>
+                        </div>
+                        <p><em>Użytkownik może podać odpowiedzi w dowolnej kolejności</em></p>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-comment"></i> Komentarze</h3>
+                        <p>Dodaj komentarze rozpoczynając linię od <code>//</code>:</p>
+                        <div class="code-example">
+                            <code>// Pytania o historię Polski<br>
+// To jest komentarz i zostanie zignorowany</code>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-file-alt"></i> Kompletny przykład</h3>
+                        <div class="code-example">
+                            <code>0 0 1<br>
+// Quiz z historii Polski<br>
+Kto był pierwszym królem Polski? -Bolesław Chrobry<br>
+W którym roku Polska odzyskała niepodległość? -1918<br>
+Która bitwa miała miejsce w 1410 roku? -Grunwald, bitwa pod Grunwaldem<br>
+K/ Wymień trzy największe miasta Polski -Warszawa, Kraków, Wrocław<br>
+// Pytania o literaturę<br>
+Kto napisał "Pan Tadeusz"? -Adam Mickiewicz</code>
+                        </div>
+                    </div>
+
+                    <div class="tutorial-section">
+                        <h3><i class="fas fa-lightbulb"></i> Wskazówki</h3>
+                        <ul>
+                            <li>Zapisz plik w formacie <strong>.txt</strong> z kodowaniem UTF-8</li>
+                            <li>Każde pytanie w osobnej linii</li>
+                            <li>Używaj polskich znaków bez problemów</li>
+                            <li>Literówki są domyślnie tolerowane (1 błąd na odpowiedź)</li>
+                            <li>W datach i liczbach literówki są zawsze niedozwolone</li>
+                            <li>Podczas quizu wpisz <strong>"."</strong> aby cofnąć błędną odpowiedź</li>
+                            <li>Wpisz <strong>"e"</strong> aby zakończyć quiz</li>
+                        </ul>
+                    </div>
+
+                    <div class="tutorial-section download-section">
+                        <h3><i class="fas fa-download"></i> Pobierz przykład</h3>
+                        <p>Pobierz gotowy przykładowy plik quizu:</p>
+                        <button onclick="downloadSampleQuiz()" class="btn btn-secondary">
+                            <i class="fas fa-download"></i>
+                            Pobierz przykładowy_quiz.txt
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <span class="progress-text" id="progress-text">Pytanie 1 z 10</span>
+                </div>
+                <div class="score-container">
+                    <i class="fas fa-trophy"></i>
+                    <span id="current-score">0</span>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-number" id="question-number">Pytanie 1</div>
+                <div class="question-text" id="question-text">Tutaj pojawi się pytanie...</div>
+                
+                <div class="answer-container">
+                    <input type="text" id="answer-input" placeholder="Wpisz swoją odpowiedź..." class="answer-input">
+                    <button id="submit-answer" class="btn btn-primary">
+                        <i class="fas fa-check"></i>
+                        Sprawdź
+                    </button>
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <div class="quiz-controls">
+                <button id="skip-question" class="btn btn-secondary">
+                    <i class="fas fa-forward"></i>
+                    Pomiń pytanie
+                </button>
+                <button id="exit-quiz" class="btn btn-danger">
+                    <i class="fas fa-times"></i>
+                    Zakończ quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <div class="results-container">
+                <div class="results-icon">
+                    <i class="fas fa-medal" id="results-icon"></i>
+                </div>
+                <h1>Quiz zakończony!</h1>
+                <div class="final-score">
+                    <span class="score-label">Twój wynik:</span>
+                    <span class="score-value" id="final-score">0</span>
+                    <span class="score-total">/ <span id="total-questions">0</span></span>
+                </div>
+                <div class="score-percentage" id="score-percentage">0%</div>
+                
+                <div class="results-details">
+                    <div class="result-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Poprawne odpowiedzi: <strong id="correct-answers">0</strong></span>
+                    </div>
+                    <div class="result-item">
+                        <i class="fas fa-times-circle"></i>
+                        <span>Błędne odpowiedzi: <strong id="wrong-answers">0</strong></span>
+                    </div>
+                    <div class="result-item">
+                        <i class="fas fa-forward"></i>
+                        <span>Pominięte pytania: <strong id="skipped-questions">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="results-actions">
+                    <button id="restart-quiz" class="btn btn-primary">
+                        <i class="fas fa-redo"></i>
+                        Rozpocznij ponownie
+                    </button>
+                    <button id="new-quiz" class="btn btn-secondary">
+                        <i class="fas fa-plus"></i>
+                        Nowy quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
